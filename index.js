@@ -53,17 +53,20 @@ app.get('/play', (req, res) => {
             if (req.query.mode == 'json') {
                 res.status(200).json({status: 'ok', song});
             } else {
-                const html = fs.readFileSync('./templates/playing.html')
-                                .toString('utf-8')
-                                .replace(/\$COVER\$/, song.cover)
-                                .replace(/\$ARTIST\$/, song.artist)
-                                .replace(/\$ALBUM\$/, song.album)
-                                .replace(/\$NAME\$/, song.name)
-                                .replace(/\$SONGLINK\$/, song.link);
-                res.set({
-                    'Content-Type': 'image/svg+xml; charset=utf-8'
+                axios.get(song.cover, { responseType: 'arraybuffer' }).then((img) => {
+                    const image = `data:image/jpeg;base64,${Buffer(img.data, 'binary').toString('base64')}`;
+                    const html = fs.readFileSync('./templates/playing.html')
+                                    .toString('utf-8')
+                                    .replace(/\$COVER\$/, image)
+                                    .replace(/\$ARTIST\$/, song.artist)
+                                    .replace(/\$ALBUM\$/, song.album)
+                                    .replace(/\$NAME\$/, song.name)
+                                    .replace(/\$SONGLINK\$/, song.link);
+                    res.set({
+                        'Content-Type': 'image/svg+xml; charset=utf-8'
+                    });
+                    res.send(html);
                 });
-                res.send(html);
             }
         } else {
             if (req.query.mode == 'json') {
@@ -73,7 +76,7 @@ app.get('/play', (req, res) => {
                 res.set({
                     'Content-Type': 'image/svg+xml; charset=utf-8'
                 });
-                res.send(html)
+                res.send(html);
             }
         }
     })
