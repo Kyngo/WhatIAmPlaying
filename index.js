@@ -60,6 +60,9 @@ app.get('/play', (req, res) => {
                                 .replace(/\$ALBUM\$/, song.album)
                                 .replace(/\$NAME\$/, song.name)
                                 .replace(/\$SONGLINK\$/, song.link);
+                res.set({
+                    'Content-Type': 'image/svg+xml; charset=utf-8'
+                });
                 res.send(html);
             }
         } else {
