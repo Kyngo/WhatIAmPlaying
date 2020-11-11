@@ -70,6 +70,9 @@ app.get('/play', (req, res) => {
                 res.status(404).json({status: 'error', message: 'Nothing is being played.'});
             } else {
                 const html = fs.readFileSync('./templates/nothing.html').toString('utf-8');
+                res.set({
+                    'Content-Type': 'image/svg+xml; charset=utf-8'
+                });
                 res.send(html)
             }
         }
