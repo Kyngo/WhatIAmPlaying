@@ -36,6 +36,7 @@ app.listen(configuration.port, () => {
 });
 
 app.all('*', (req, res, next) => {
+    res.setHeader('Cache-Control', 's-maxage=1')
     next();
     console.log(req.method, req.url, req.ip);
 });
