@@ -1,12 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>What I am listening to</title>
-        <style>* { font-family: sans-serif; }</style>
-    </head>
-    <body>
-        <h1>Nothing is playing right now.</h1>
-    </body>
-</html>
+<svg width="480" height="108" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <foreignObject width="480" height="108">
+        <div xmlns="http://www.w3.org/1999/xhtml" id="container">
+            <style>
+                * {
+                    font-family: sans-serif;
+                }
+                img {
+                    width: 100px;
+                    height: auto;
+                    margin-right: 10px;
+                }
+                h1, h2, h3, h4, h5, h6 {
+                    border: 0px;
+                    margin: 0px;
+                    font-weight: 400;
+                }
+                h1 {
+                    font-size: 24px;
+                }
+                h2 {
+                    font-size: 14px;
+                }
+                h3 {
+                    font-size: 14px;
+                }
+                a {
+                    text-decoration: none;
+                }
+                #container {
+                    max-width: 480px;
+                }
+                .wrapper {
+                    position: relative;
+                    margin: 0 auto;
+                    width: 480px;
+                    height: 103px;
+                    display: flex;
+                    color: initial;
+                    text-align: center;
+                }
+                .msg {
+                    margin: auto auto;
+                }
+                h1 {
+                    font-size: 16px;
+                }
+                h2 {
+                    font-size: 12px;
+                }
+            </style>
+            <a href="$SONGLINK$" target="_blank">
+                <div class="wrapper">
+                    <div class="msg">
+                        <h1>I'm not listening to anything right now.</h1>
+                        <h2>Come back later!</h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </foreignObject>
+</svg>

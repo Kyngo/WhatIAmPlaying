@@ -1,37 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>What I am listening to</title>
-        <style>
-            * {
-                font-family: sans-serif;
-            }
-            img {
-                width: 100px;
-                height: auto;
-                margin-right: 10px;
-            }
-            h1, h2, h3, h4, h5, h6 {
-                border: 0px;
-                margin: 0px;
-                font-weight: 400;
-            }
-        </style>
-    </head>
-    <body>
-        <table>
-            <tr>
-                <td>
-                    <img src="$COVER$" />
-                </td>
-                <td>
-                    <h1>$NAME$</h1>
-                    <h3>By <strong>$ARTIST$</strong> ($ALBUM$)</h3>
-                    <a href="$SONGLINK$">Play on Spotify</a>
-                </td>
-            </tr>
-        </table>
-    </body>
-</html>
+<svg width="480" height="108" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <foreignObject width="480" height="108">
+        <div xmlns="http://www.w3.org/1999/xhtml" id="container">
+            <style>
+                * {
+                    font-family: sans-serif;
+                }
+                img {
+                    width: 100px;
+                    height: auto;
+                    margin-right: 10px;
+                }
+                h1, h2, h3, h4, h5, h6 {
+                    border: 0px;
+                    margin: 0px;
+                    font-weight: 400;
+                }
+                h1 {
+                    font-size: 24px;
+                }
+                h2 {
+                    font-size: 14px;
+                }
+                h3 {
+                    font-size: 14px;
+                }
+                a {
+                    text-decoration: none;
+                }
+                #container {
+                    max-width: 480px;
+                }
+                .wrapper {
+                    position: relative;
+                    margin: 0 auto;
+                    width: 480px;
+                    height: 103px;
+                    display: flex;
+                    color: initial;
+                }
+                .wrapper > div {
+                    display: inline-block;
+                }
+                .wrapper > .cover {
+                    width: 110px;
+                }
+                .wrapper > .data {
+                    width: 369px;
+                    vertical-align: middle;
+                    margin: auto 0;
+                }
+            </style>
+            <a href="$SONGLINK$" target="_blank">
+                <div class="wrapper">
+                    <div class="cover">
+                        <img src="$COVER$" />
+                    </div>
+                    <div class="data">
+                        <div class="datawrapper">
+                            <h3>🎧 Currently listening to...</h3>
+                            <h1>$NAME$</h1>
+                            <h2>By <strong>$ARTIST$</strong></h2>
+                            <h2><em>$ALBUM$</em></h2>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </foreignObject>
+</svg>
