@@ -25,7 +25,7 @@ curl http://localhost:38150/play?mode=json
 
 ## Example widget
 
-Check my Github profile README to see a live example.
+[![Spotify](http://prometheus.kyngo.net:38150/play?v=1)](https://open.spotify.com/user/arno-kun)
 
 ## Attributions
 
