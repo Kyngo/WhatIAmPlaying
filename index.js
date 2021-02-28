@@ -38,11 +38,12 @@ const refreshToken = () => {
         else console.log(err);
     });
 }
-refreshToken();
+
 setInterval(refreshToken, 60 * 1000); // refresh token every minute
 
 app.listen(configuration.port, () => {
-    console.log(`Server is listening on port ${configuration.port}`);
+    console.log(`WhatIAmPlaying Server is listening on port ${configuration.port} !`);
+    refreshToken();
 });
 
 app.all('*', (req, res, next) => {
@@ -51,44 +52,46 @@ app.all('*', (req, res, next) => {
     console.log(req.method, req.url, req.ip);
 });
 
-app.get('/play', (req, res) => {
-    axios.get('https://api.spotify.com/v1/me/player/currently-playing', {headers: {Authorization: `Bearer ${configuration.token}`}}).then((response) => {
-        if (response.status == 200) {
-            const song = {
-                name: response.data.item.name,
-                artist: response.data.item.artists[0].name,
-                album: response.data.item.album.name,
-                cover: response.data.item.album.images[0].url,
-                link: response.data.item.external_urls.spotify
-            };
-            if (req.query.mode == 'json') {
-                res.status(200).json({status: 'ok', song});
-            } else {
-                axios.get(song.cover, { responseType: 'arraybuffer' }).then((img) => {
-                    const image = `data:image/jpeg;base64,${Buffer(img.data, 'binary').toString('base64')}`;
-                    const html = fs.readFileSync('./templates/playing.html')
-                                    .toString('utf-8')
-                                    .replace(/\$COVER\$/, image)
-                                    .replace(/\$ARTIST\$/, song.artist)
-                                    .replace(/\$ALBUM\$/, song.album)
-                                    .replace(/\$NAME\$/, song.name)
-                                    .replace(/\$SONGLINK\$/, song.link);
-                    res.set({
-                        'Content-Type': 'image/svg+xml; charset=utf-8'
-                    });
-                    res.send(html);
-                });
-            }
+app.get('/play', async (req, res) => {
+    const currentlyPlayingReq = await axios.get('https://api.spotify.com/v1/me/player/currently-playing', {headers: {Authorization: `Bearer ${configuration.token}`}});
+    const currentlyPlaying = currentlyPlayingReq.data;
+    let statusCode = 200;
+    let html = '';
+    let jsonReply = [];
+    if (currentlyPlayingReq.status == 200) {
+        const song = {
+            name: currentlyPlaying.item.name,
+            artist: currentlyPlaying.item.artists[0].name,
+            album: currentlyPlaying.item.album.name,
+            cover: currentlyPlaying.item.album.images[0].url,
+            link: currentlyPlaying.item.external_urls.spotify
+        };
+        if (req.query.mode == 'json') {
+            jsonReply = {status: 'ok', song};
         } else {
-            if (req.query.mode == 'json') {
-                res.status(404).json({status: 'error', message: 'Nothing is being played.'});
-            } else {
-                const html = fs.readFileSync('./templates/nothing.html').toString('utf-8');
-                res.set({
-                    'Content-Type': 'image/svg+xml; charset=utf-8'
-                });
-                res.send(html);
-            }
+            const img = await axios.get(song.cover, { responseType: 'arraybuffer' });
+            const image = `data:image/jpeg;base64,${Buffer.from(img.data, 'binary').toString('base64')}`;
+            html = fs.readFileSync('./templates/playing.html', {encoding: 'utf-8'})
+                .replace(/\$COVER\$/, image)
+                .replace(/\$ARTIST\$/, song.artist)
+                .replace(/\$ALBUM\$/, song.album)
+                .replace(/\$NAME\$/, song.name)
+                .replace(/\$SONGLINK\$/, song.link);
         }
-    })
-})
+    } else {
+        if (req.query.mode == 'json') {
+            statusCode = 404;
+            jsonReply = {status: 'error', message: 'Nothing is being played.'};
+        } else {
+            html = fs.readFileSync('./templates/nothing.html', 'utf-8');
+        }
+    }
+    
+    res.status(statusCode);
+    if (req.query.mode == 'json') {
+        res.json(jsonReply);
+    } else {
+        res.set({'Content-Type': 'image/svg+xml; charset=utf-8'});
+        res.send(html);
+    }
+});
