@@ -1,3 +1,13 @@
+/**
+ * WhatIAmPlaying
+ * 
+ * This module allows you to show what you're listening to on Spotify with a web widget.
+ * 
+ * Copyright (c) 2021 Arnau "Kyngo" Martin. 
+ * 
+ * Code available to use and redistribute accoring to the AGPL 3.0 license.
+ */
+
 const fs = require('fs');
 
 const express = require('express');
