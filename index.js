@@ -3,7 +3,7 @@
  * 
  * This module allows you to show what you're listening to on Spotify with a web widget.
  * 
- * Copyright (c) 2021 Arnau "Kyngo" Martin. 
+ * Created by Arnau "Kyngo" Martin.
  * 
  * Code available to use and redistribute accoring to the AGPL 3.0 license.
  */
@@ -13,7 +13,26 @@ const fs = require('fs');
 const express = require('express');
 const axios = require('axios');
 
-const configuration = JSON.parse(fs.readFileSync('./credentials.json', {encoding: 'utf-8'}));
+const configFilePath = `${__dirname}/credentials.json`;
+
+if (!fs.existsSync(configFilePath)) {
+    console.error('[ERR] Missing "credentials.json" file in project root folder! Please create the file as instructed in the project README.');
+    process.exit(1);
+}
+
+const configuration = JSON.parse(fs.readFileSync(configFilePath, {encoding: 'utf-8'}));
+
+if (
+    !configuration.port ||
+    !configuration.client ||
+    !configuration.secret ||
+    !configuration.token ||
+    !configuration.refreshToken
+) {
+    console.error('[ERR] Credentials configuration file is missing either of the following parameters: port, client, secret, token, refreshToken.');
+    console.error('Please create the file as instructed in the project README.');
+    process.exit(1);
+}
 
 const app = express();
 
@@ -34,7 +53,16 @@ const refreshToken = () => {
         fs.writeFileSync('./credentials.json', JSON.stringify(configuration, null, 4));
         console.log('Updated credentials');
     }).catch((err) => {
-        if (err.response) console.log(err.response.data);
+        const errorLogFilePath = `${__dirname}/messages.log`;
+        if (!fs.existsSync(errorLogFilePath)) {
+            fs.writeFileSync(errorLogFilePath, '');
+        }
+        console.error(`Something went wrong when updating the credentials. Please check the logs file located at ${errorLogFilePath} for more details.`);
+        fs.appendFileSync(errorLogFilePath, '== NEW ERROR ==');
+        fs.appendFileSync(errorLogFilePath, JSON.stringify(err));
+        if (err.response) {
+            fs.appendFileSync(errorLogFilePath, JSON.stringify(err.response.data));
+        }
         else console.log(err);
     });
 }
@@ -47,7 +75,9 @@ app.listen(configuration.port, () => {
 });
 
 app.all('*', (req, res, next) => {
-    res.setHeader('Cache-Control', 'no-cache, max-age=0')
+    res.setHeader('Cache-Control', 'no-cache, max-age=0');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('X-Powered-By', 'WhatIAmPlaying');
     next();
     console.log(req.method, req.url, req.ip);
 });
@@ -69,10 +99,8 @@ app.get('/play', async (req, res) => {
         if (req.query.mode == 'json') {
             jsonReply = {status: 'ok', song};
         } else {
-            const img = await axios.get(song.cover, { responseType: 'arraybuffer' });
-            const image = `data:image/jpeg;base64,${Buffer.from(img.data, 'binary').toString('base64')}`;
             html = fs.readFileSync('./templates/playing.html', {encoding: 'utf-8'})
-                .replace(/\$COVER\$/, image)
+                .replace(/\$COVER\$/, song.cover)
                 .replace(/\$ARTIST\$/, song.artist)
                 .replace(/\$ALBUM\$/, song.album)
                 .replace(/\$NAME\$/, song.name)
@@ -94,4 +122,8 @@ app.get('/play', async (req, res) => {
         res.set({'Content-Type': 'image/svg+xml; charset=utf-8'});
         res.send(html);
     }
+});
+
+app.all('*', (_, res) => {
+    res.redirect('/play');
 });
