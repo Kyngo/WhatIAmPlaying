@@ -99,8 +99,10 @@ app.get('/play', async (req, res) => {
         if (req.query.mode == 'json') {
             jsonReply = {status: 'ok', song};
         } else {
+            const img = await axios.get(song.cover, { responseType: 'arraybuffer' });
+            const image = `data:image/jpeg;base64,${Buffer.from(img.data, 'binary').toString('base64')}`;
             html = fs.readFileSync('./templates/playing.html', {encoding: 'utf-8'})
-                .replace(/\$COVER\$/, song.cover)
+                .replace(/\$COVER\$/, image)
                 .replace(/\$ARTIST\$/, song.artist)
                 .replace(/\$ALBUM\$/, song.album)
                 .replace(/\$NAME\$/, song.name)
