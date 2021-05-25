@@ -25,12 +25,22 @@ const configuration = JSON.parse(fs.readFileSync(configFilePath, {encoding: 'utf
 if (
     !configuration.port ||
     !configuration.client ||
-    !configuration.secret ||
-    !configuration.token ||
-    !configuration.refreshToken
+    !configuration.secret
 ) {
-    console.error('[ERR] Credentials configuration file is missing either of the following parameters: port, client, secret, token, refreshToken.');
+    console.error('[ERR] Credentials configuration file is missing either of the following parameters: port, client, secret, token.');
     console.error('Please create the file as instructed in the project README.');
+    process.exit(1);
+}
+
+if (!configuration.refreshUrl) {
+    console.error('[ERR] Missing refresh URL. Please add the callback URL used to obtain the token inside the "credentials.json" file.');
+    console.error('If you followed the example given in the README file, you should enter "http://localhost/callback/" as the value.');
+    process.exit(1);
+}
+
+if (!configuration.token) {
+    console.error('[ERR] Credentials are missing a token. To retrieve it, please follow this link:');
+    console.error(`https://accounts.spotify.com/authorize?client_id=${configuration.client}&response_type=code&scope=user-read-currently-playing,user-read-recently-played&redirect_uri=${configuration.refreshUrl}`)
     process.exit(1);
 }
 
@@ -38,18 +48,29 @@ const app = express();
 
 const refreshToken = () => {
     const encodedToken = new Buffer.from(`${configuration.client}:${configuration.secret}`).toString('base64');
+    let queryParams = {
+        grant_type: 'authorization_code',
+        redirect_uri: configuration.refreshUrl,
+        code: configuration.token
+    };
+    if (configuration.refreshToken) {
+        queryParams = {
+            grant_type: 'refresh_token', 
+            refresh_token: configuration.refreshToken
+        };
+    }
     axios({
         url: 'https://accounts.spotify.com/api/token',
         method: 'POST',
         headers: {
             Authorization: `Basic ${encodedToken}`
         }, 
-        params: {
-            grant_type: 'refresh_token', 
-            refresh_token: configuration.refreshToken
-        }
+        params: queryParams
     }).then((res) => {
         configuration.token = res.data.access_token;
+        if (res.data.refresh_token) {
+            configuration.refreshToken = res.data.refresh_token;
+        }
         fs.writeFileSync('./credentials.json', JSON.stringify(configuration, null, 4));
         console.log('Updated credentials');
     }).catch((err) => {
@@ -58,10 +79,10 @@ const refreshToken = () => {
             fs.writeFileSync(errorLogFilePath, '');
         }
         console.error(`Something went wrong when updating the credentials. Please check the logs file located at ${errorLogFilePath} for more details.`);
-        fs.appendFileSync(errorLogFilePath, '== NEW ERROR ==');
-        fs.appendFileSync(errorLogFilePath, JSON.stringify(err));
+        fs.appendFileSync(errorLogFilePath, '== NEW ERROR ==\n');
+        fs.appendFileSync(errorLogFilePath, JSON.stringify(err) + '\n');
         if (err.response) {
-            fs.appendFileSync(errorLogFilePath, JSON.stringify(err.response.data));
+            fs.appendFileSync(errorLogFilePath, JSON.stringify(err.response.data) + '\n');
         }
         else console.log(err);
     });
