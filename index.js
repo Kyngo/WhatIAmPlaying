@@ -12,6 +12,7 @@ const fs = require('fs');
 
 const express = require('express');
 const axios = require('axios');
+const sharp = require('sharp');
 
 const configFilePath = `${__dirname}/credentials.json`;
 
@@ -121,20 +122,32 @@ app.get('/play', async (req, res) => {
             jsonReply = {status: 'ok', song};
         } else {
             const img = await axios.get(song.cover, { responseType: 'arraybuffer' });
+            const barcode = await axios.get(`https://scannables.scdn.co/uri/plain/png/000000/white/1024/${currentlyPlaying.item.uri}`, { responseType: 'arraybuffer' });
             const image = `data:image/jpeg;base64,${Buffer.from(img.data, 'binary').toString('base64')}`;
-            html = fs.readFileSync('./templates/playing.html', {encoding: 'utf-8'})
+            let { artist, album, name } = song;
+            if (name.length > 25) {
+                name = name.slice(0, 22) + "...";
+            }
+            if (album.length > 40) {
+                name = name.slice(0, 40) + "...";
+            }
+
+            const headphones = fs.readFileSync('./templates/headphones.png');
+
+            html = fs.readFileSync('./templates/playing.svg', {encoding: 'utf-8'})
+                .replace(/\$HEADPHONES\$/, `data:image/png;base64,${Buffer.from(headphones, 'binary').toString('base64')}`)
                 .replace(/\$COVER\$/, image)
-                .replace(/\$ARTIST\$/, song.artist)
-                .replace(/\$ALBUM\$/, song.album)
-                .replace(/\$NAME\$/, song.name)
-                .replace(/\$SONGLINK\$/, song.link);
+                .replace(/\$BARCODE\$/, `data:image/png;base64,${Buffer.from(barcode.data, 'binary').toString('base64')}`)
+                .replace(/\$ARTIST\$/, artist)
+                .replace(/\$ALBUM\$/, album)
+                .replace(/\$NAME\$/, name);
         }
     } else {
         if (req.query.mode == 'json') {
             statusCode = 404;
             jsonReply = {status: 'error', message: 'Nothing is being played.'};
         } else {
-            html = fs.readFileSync('./templates/nothing.html', 'utf-8');
+            html = fs.readFileSync('./templates/nothing.svg', 'utf-8');
         }
     }
     
@@ -142,8 +155,13 @@ app.get('/play', async (req, res) => {
     if (req.query.mode == 'json') {
         res.json(jsonReply);
     } else {
-        res.set({'Content-Type': 'image/svg+xml; charset=utf-8'});
-        res.send(html);
+        sharp(Buffer.from(html)).jpeg({ quality: 100, progressive: true }).toBuffer().then(image => {
+            res.set({'Content-Type': 'image/jpeg'});
+            res.send(image);
+        }).catch(err => {
+            res.status(500).send('Something went wrong when parsing the results...');
+            console.error(err);
+        });
     }
 });
 

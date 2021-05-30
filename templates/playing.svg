@@ -1,0 +1,11 @@
+<svg width="960" height="266" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <rect height="266" width="960" fill="#ffffff" />
+    <image width="216" height="216" xlink:href="$COVER$" x="0" y="0" />
+    <image width="216" height="54" xlink:href="$BARCODE$" x="0" y="215" />
+    <image width="32" height="32" xlink:href="$HEADPHONES$" x="232" y="23" />
+    <text font-family="sans-serif" x="274" y="50" font-size="28">Currently listening to...</text>
+    <text font-family="sans-serif" x="232" y="136" font-size="56">$NAME$</text>
+    <text font-family="sans-serif" x="232" y="204" font-size="32">by</text>
+    <text font-family="sans-serif" x="278" y="204" font-size="32" font-weight="bold">$ARTIST$</text>
+    <text font-family="sans-serif" x="232" y="248" font-size="32" font-style="italic">$ALBUM$</text>
+</svg>

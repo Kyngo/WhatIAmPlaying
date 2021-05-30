@@ -1,5 +1,5 @@
 {
-  "name": "WhatIAmPlaying",
+  "name": "whatiamplaying",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/kyngo/whatiamplaying",
@@ -7,7 +7,8 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "sharp": "^0.28.3"
   },
   "scripts": {
     "start": "node index.js"

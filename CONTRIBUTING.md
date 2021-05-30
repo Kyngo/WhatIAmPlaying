@@ -1,3 +1,5 @@
+# Contributing
+
 In order to contribute to this project, you only have to do as follows:
 
 1. Make a PR with your modifications with a detailed explanation of your feature/fix/whatever
