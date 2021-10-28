@@ -129,7 +129,7 @@ app.get('/play', async (req, res) => {
                 name = name.slice(0, 22) + "...";
             }
             if (album.length > 40) {
-                name = name.slice(0, 40) + "...";
+                album = album.slice(0, 40) + "...";
             }
 
             const headphones = fs.readFileSync('./templates/headphones.png');
