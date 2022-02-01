@@ -13,6 +13,7 @@ const fs = require('fs');
 const express = require('express');
 const axios = require('axios');
 const sharp = require('sharp');
+const serverless = require('serverless-http');
 
 const configFilePath = `${__dirname}/credentials.json`;
 
@@ -89,7 +90,9 @@ const refreshToken = () => {
     });
 }
 
-setInterval(refreshToken, 60 * 1000); // refresh token every minute
+if (!process.env.NETLIFY) {
+    setInterval(refreshToken, 60 * 1000); // refresh token every minute
+}
 
 app.listen(configuration.port, () => {
     console.log(`WhatIAmPlaying Server is listening on port ${configuration.port} !`);
@@ -138,9 +141,9 @@ app.get('/play', async (req, res) => {
                 .replace(/\$HEADPHONES\$/, `data:image/png;base64,${Buffer.from(headphones, 'binary').toString('base64')}`)
                 .replace(/\$COVER\$/, image)
                 .replace(/\$BARCODE\$/, `data:image/png;base64,${Buffer.from(barcode.data, 'binary').toString('base64')}`)
-                .replace(/\$ARTIST\$/, artist)
-                .replace(/\$ALBUM\$/, album)
-                .replace(/\$NAME\$/, name);
+                .replace(/\$ARTIST\$/, artist.replace('&', '&amp;'))
+                .replace(/\$ALBUM\$/, album.replace('&', '&amp;'))
+                .replace(/\$NAME\$/, name.replace('&', '&amp;'));
         }
     } else {
         if (req.query.mode == 'json') {
@@ -168,3 +171,7 @@ app.get('/play', async (req, res) => {
 app.all('*', (_, res) => {
     res.redirect('/play');
 });
+
+
+module.exports = app;
+module.exports.handler = serverless(app);
