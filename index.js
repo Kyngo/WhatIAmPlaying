@@ -113,7 +113,7 @@ app.get('/play', async (req, res) => {
     let statusCode = 200;
     let html = '';
     let jsonReply = [];
-    if (currentlyPlayingReq.status == 200) {
+    if (currentlyPlayingReq.status == 200 && currentlyPlaying.currently_playing_type === 'track') {
         const song = {
             name: currentlyPlaying.item.name,
             artist: currentlyPlaying.item.artists[0].name,
