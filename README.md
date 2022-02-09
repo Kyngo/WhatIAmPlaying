@@ -30,7 +30,7 @@ To get a JSON with the current song being played:
 curl http://localhost:38150/play?mode=json
 ```
 
-You can change the default port on the `credentials.json` file if you need to.
+You can change the default port by overriding the `PORT` environment variable.
 
 ## Example widget
 

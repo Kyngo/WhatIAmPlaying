@@ -13,7 +13,6 @@ const fs = require('fs');
 const express = require('express');
 const axios = require('axios');
 const sharp = require('sharp');
-const serverless = require('serverless-http');
 
 const configFilePath = `${__dirname}/credentials.json`;
 
@@ -25,7 +24,6 @@ if (!fs.existsSync(configFilePath)) {
 const configuration = JSON.parse(fs.readFileSync(configFilePath, {encoding: 'utf-8'}));
 
 if (
-    !configuration.port ||
     !configuration.client ||
     !configuration.secret
 ) {
@@ -94,8 +92,10 @@ if (!process.env.NETLIFY) {
     setInterval(refreshToken, 60 * 1000); // refresh token every minute
 }
 
-app.listen(configuration.port, () => {
-    console.log(`WhatIAmPlaying Server is listening on port ${configuration.port} !`);
+const port = process.env.PORT ?? 38150;
+
+app.listen(port, () => {
+    console.log(`WhatIAmPlaying Server is listening on port ${port} !`);
     refreshToken();
 });
 
@@ -108,18 +108,20 @@ app.all('*', (req, res, next) => {
 });
 
 app.get('/play', async (req, res) => {
-    const currentlyPlayingReq = await axios.get('https://api.spotify.com/v1/me/player/currently-playing', {headers: {Authorization: `Bearer ${configuration.token}`}});
+    const currentlyPlayingReq = await axios.get('https://api.spotify.com/v1/me/player/currently-playing?additional_types=episode', {
+        headers: { Authorization: `Bearer ${configuration.token}` }
+    });
     const currentlyPlaying = currentlyPlayingReq.data;
     let statusCode = 200;
     let html = '';
     let jsonReply = [];
-    if (currentlyPlayingReq.status == 200 && currentlyPlaying.currently_playing_type === 'track') {
+    if (currentlyPlayingReq.status == 200) {
         const song = {
-            name: currentlyPlaying.item.name,
-            artist: currentlyPlaying.item.artists[0].name,
-            album: currentlyPlaying.item.album.name,
-            cover: currentlyPlaying.item.album.images[0].url,
-            link: currentlyPlaying.item.external_urls.spotify
+            name:   currentlyPlaying.item.name,
+            artist: currentlyPlaying.currently_playing_type === 'track' ? currentlyPlaying.item.artists[0].name : currentlyPlaying.item.show.publisher,
+            album:  currentlyPlaying.currently_playing_type === 'track' ? currentlyPlaying.item.album.name : currentlyPlaying.item.show.name,
+            cover:  currentlyPlaying.currently_playing_type === 'track' ? currentlyPlaying.item.album.images[0].url : currentlyPlaying.item.images[0].url,
+            link:   currentlyPlaying.item.external_urls.spotify
         };
         if (req.query.mode == 'json') {
             jsonReply = {status: 'ok', song};
@@ -135,10 +137,10 @@ app.get('/play', async (req, res) => {
                 album = album.slice(0, 40) + "...";
             }
 
-            const headphones = fs.readFileSync('./templates/headphones.png');
+            const icon = fs.readFileSync(currentlyPlaying.currently_playing_type === 'track' ? './templates/headphones.png' : './templates/microphone.png');
 
             html = fs.readFileSync('./templates/playing.svg', {encoding: 'utf-8'})
-                .replace(/\$HEADPHONES\$/, `data:image/png;base64,${Buffer.from(headphones, 'binary').toString('base64')}`)
+                .replace(/\$HEADPHONES\$/, `data:image/png;base64,${Buffer.from(icon, 'binary').toString('base64')}`)
                 .replace(/\$COVER\$/, image)
                 .replace(/\$BARCODE\$/, `data:image/png;base64,${Buffer.from(barcode.data, 'binary').toString('base64')}`)
                 .replace(/\$ARTIST\$/, artist.replace('&', '&amp;'))
@@ -171,7 +173,3 @@ app.get('/play', async (req, res) => {
 app.all('*', (_, res) => {
     res.redirect('/play');
 });
-
-
-module.exports = app;
-module.exports.handler = serverless(app);
