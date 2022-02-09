@@ -4,7 +4,7 @@ A small widget/API that shows you what you're playing on Spotify. Works with bot
 
 ## Requirements
 
-You need Node.js in your machine (tested with versions 10, 12 and 14). Will probably work with older versions of Node.
+You need Node.js in your machine (tested with versions 14 and beyond). Will probably work with older versions of Node.
 
 A recommendation is to also use `pm2` to make the process run forever in background. You can use other options, such as `nodemon` or `forever` if you wish to. A PM2 ecosystem file is included with this repository (`whatiamplaying.config.js`).
 
