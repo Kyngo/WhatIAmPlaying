@@ -1,6 +1,6 @@
 # What I Am Playing
 
-A small widget/API that shows you what you're playing on Spotify.
+A small widget/API that shows you what you're playing on Spotify. Works with both music and podcasts!
 
 ## Requirements
 
