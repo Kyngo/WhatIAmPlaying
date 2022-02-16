@@ -4,6 +4,7 @@ import ConfigHandler from './configHandler';
 
 import MiddlewareRoute from './routes/middleware';
 import Root from './routes/root';
+import Robots from './routes/robots';
 import PlayRoute from './routes/play';
 import Error404Route from './routes/error404';
 
@@ -62,6 +63,7 @@ export default class Server {
     {
         this.app.all('*', (req: any, res: any, next: any) => MiddlewareRoute(req, res, next));
         this.app.get('/', (req: any, res: any) => Root(req, res));
+        this.app.get('/robots.txt', (req: any, res: any) => Robots(req, res));
         this.app.get('/play', (req: any, res: any) => PlayRoute(req, res, this.credentials));
         this.app.all('*', (_: any, res: any) => Error404Route(_, res));
     }
