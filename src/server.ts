@@ -3,6 +3,7 @@ import express from 'express';
 import ConfigHandler from './configHandler';
 
 import MiddlewareRoute from './routes/middleware';
+import Root from './routes/root';
 import PlayRoute from './routes/play';
 import Error404Route from './routes/error404';
 
@@ -19,7 +20,8 @@ export default class Server {
         this.HandleUpdateCredentials();
     }
 
-    Start() {
+    Start(): void
+    {
         if (!this.app) {
             this.app = express();
             this.RegisterRoutes();
@@ -31,7 +33,8 @@ export default class Server {
         }
     }
 
-    Stop() {
+    Stop(): void
+    {
         if (this.app) {
             console.log(`Stopping server...`);
             this.server.close();
@@ -42,7 +45,8 @@ export default class Server {
         }
     }
 
-    private async HandleUpdateCredentials() {
+    private async HandleUpdateCredentials(): Promise<void>
+    {
         const newCredentials: ICredentialsFile = await ConfigHandler.UpdateCredentials();
         if (newCredentials) {
             this.credentials = newCredentials;
@@ -54,8 +58,10 @@ export default class Server {
         }
     }
 
-    private RegisterRoutes() {
+    private RegisterRoutes(): void
+    {
         this.app.all('*', (req: any, res: any, next: any) => MiddlewareRoute(req, res, next));
+        this.app.get('/', (req: any, res: any) => Root(req, res));
         this.app.get('/play', (req: any, res: any) => PlayRoute(req, res, this.credentials));
         this.app.all('*', (_: any, res: any) => Error404Route(_, res));
     }

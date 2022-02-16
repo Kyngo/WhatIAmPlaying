@@ -4,7 +4,18 @@ import * as fs from 'fs';
 
 import { ICredentialsFile, IJSONReply } from '../interfaces';
 
-export default async function (req: any, res: any, credentials: ICredentialsFile) {
+/**
+ * Play method - this will query the Spotify API and parse its result.
+ * If nothing is being played, a specific response will be given.
+ * Otherwise, the thumbnail will be obtained and the current track
+ * will be returned as JSON or image.
+ * 
+ * @param req Express request
+ * @param res Express response
+ * @param credentials Spotify credentials file
+ */
+export default async function (req: any, res: any, credentials: ICredentialsFile): Promise<void>
+{
     const currentlyPlayingReq = await axios.get('https://api.spotify.com/v1/me/player/currently-playing?additional_types=episode', {
         headers: { Authorization: `Bearer ${credentials.token}` }
     });
@@ -12,7 +23,7 @@ export default async function (req: any, res: any, credentials: ICredentialsFile
     let statusCode = 200;
     let html = '';
     let jsonReply: IJSONReply = { status: 'pending' };
-    if (currentlyPlayingReq.status == 200) {
+    if (currentlyPlayingReq.status === 200) {
         const song = {
             name: currentlyPlaying.item.name,
             artist: currentlyPlaying.currently_playing_type === 'track' ? currentlyPlaying.item.artists[0].name : currentlyPlaying.item.show.publisher,
@@ -20,7 +31,7 @@ export default async function (req: any, res: any, credentials: ICredentialsFile
             cover: currentlyPlaying.currently_playing_type === 'track' ? currentlyPlaying.item.album.images[0].url : currentlyPlaying.item.images[0].url,
             link: currentlyPlaying.item.external_urls.spotify
         };
-        if (req.query.mode == 'json') {
+        if (req.query.mode === 'json') {
             jsonReply = { status: 'ok', song };
         } else {
             const img = await axios.get(song.cover, { responseType: 'arraybuffer' });
@@ -45,7 +56,7 @@ export default async function (req: any, res: any, credentials: ICredentialsFile
                 .replace(/\$NAME\$/, name.replace('&', '&amp;'));
         }
     } else {
-        if (req.query.mode == 'json') {
+        if (req.query.mode === 'json') {
             statusCode = 404;
             jsonReply = { status: 'error', message: 'Nothing is being played.' };
         } else {
@@ -54,7 +65,7 @@ export default async function (req: any, res: any, credentials: ICredentialsFile
     }
 
     res.status(statusCode);
-    if (req.query.mode == 'json') {
+    if (req.query.mode === 'json') {
         res.json(jsonReply);
     } else {
         sharp(Buffer.from(html)).jpeg({ quality: 100, progressive: true }).toBuffer().then(image => {

@@ -9,7 +9,8 @@ import Server from './server';
  * After that, we declare `s` as our server class variable and invoke its start method.
  * 
  */
-export default function (): void {
+export default function (): void 
+{
     const signals = [
         'SIGINT', 'SIGTERM'
     ];

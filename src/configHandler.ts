@@ -16,7 +16,8 @@ export default {
      * 
      * @returns ICredentialsFile credentials
      */
-    Load(): ICredentialsFile {
+    Load(): ICredentialsFile
+    {
         if (!fs.existsSync(configFilePath)) {
             throw new Error(
                 `Missing "credentials.json" file in project root folder! Please create the file as instructed in the project README.`
@@ -55,7 +56,8 @@ export default {
      * 
      * @returns Promise<ICredentialsFile> credentials
      */
-    async UpdateCredentials(): Promise<ICredentialsFile> {
+    async UpdateCredentials(): Promise<ICredentialsFile>
+    {
         const credentials: ICredentialsFile = this.Load();
         const encodedToken = Buffer.from(`${credentials.client}:${credentials.secret}`).toString('base64');
         let queryParams: IQueryParams = {
