@@ -87,7 +87,7 @@ export default {
             fs.writeFileSync(configFilePath, JSON.stringify(credentials, null, 4));
             console.log('Updated credentials');
             return credentials;
-        } catch (err) {
+        } catch (err: any) {
             const errorLogFilePath = `${__dirname}/messages.log`;
             if (!fs.existsSync(errorLogFilePath)) {
                 fs.writeFileSync(errorLogFilePath, '');
