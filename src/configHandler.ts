@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as process from 'process';
-import axios from 'axios';
+import Requester from './services/request';
 
 import { ICredentialsFile, IQueryParams } from './interfaces';
 
@@ -72,7 +72,7 @@ export default {
             };
         }
         try {
-            const res = await axios({
+            const res = await Requester({
                 url: 'https://accounts.spotify.com/api/token',
                 method: 'POST',
                 headers: {

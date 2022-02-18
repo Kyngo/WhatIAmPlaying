@@ -1,6 +1,7 @@
-import axios from 'axios';
 import sharp from 'sharp';
 import * as fs from 'fs';
+
+import Requester from '../services/request';
 
 import { ICredentialsFile, IJSONReply } from '../interfaces';
 
@@ -16,7 +17,7 @@ import { ICredentialsFile, IJSONReply } from '../interfaces';
  */
 export default async function (req: any, res: any, credentials: ICredentialsFile): Promise<void>
 {
-    const currentlyPlayingReq = await axios.get('https://api.spotify.com/v1/me/player/currently-playing?additional_types=episode', {
+    const currentlyPlayingReq = await Requester.get('https://api.spotify.com/v1/me/player/currently-playing?additional_types=episode', {
         headers: { Authorization: `Bearer ${credentials.token}` }
     });
     const currentlyPlaying = currentlyPlayingReq.data;
@@ -34,8 +35,8 @@ export default async function (req: any, res: any, credentials: ICredentialsFile
         if (req.query.mode === 'json') {
             jsonReply = { status: 'ok', song };
         } else {
-            const img = await axios.get(song.cover, { responseType: 'arraybuffer' });
-            const barcode = await axios.get(`https://scannables.scdn.co/uri/plain/png/000000/white/1024/${currentlyPlaying.item.uri}`, { responseType: 'arraybuffer' });
+            const img = await Requester.get(song.cover, { responseType: 'arraybuffer' });
+            const barcode = await Requester.get(`https://scannables.scdn.co/uri/plain/png/000000/white/1024/${currentlyPlaying.item.uri}`, { responseType: 'arraybuffer' });
             const image = `data:image/jpeg;base64,${Buffer.from(img.data, 'binary').toString('base64')}`;
             let { artist, album, name } = song;
             if (name.length > 25) {
