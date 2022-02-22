@@ -80,7 +80,9 @@ export default {
                 }, 
                 params: queryParams
             });
-            credentials.token = res.data.access_token;
+            if (res.data.access_token) {
+                credentials.token = res.data.access_token;
+            }
             if (res.data.refresh_token) {
                 credentials.refreshToken = res.data.refresh_token;
             }
