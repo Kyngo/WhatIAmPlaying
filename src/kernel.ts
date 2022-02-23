@@ -1,5 +1,7 @@
 import Server from './server';
 
+import log from './services/logger';
+
 /**
  * 
  * Kernel class: this loads the whole application.
@@ -21,7 +23,7 @@ export default function (): void
 
     function halt(s: Server) {
         s.Stop();
-        console.log(`Bye!`);
+        log(`Bye!`);
     }
 
     const s = new Server();

@@ -1,3 +1,8 @@
+/**
+ * Axios requester service
+ * This file modifies Axios to not throw errors when a response is received
+ */
+
 import axios from 'axios';
 
 axios.interceptors.response.use((response) => {

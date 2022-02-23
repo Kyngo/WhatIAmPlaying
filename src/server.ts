@@ -1,12 +1,16 @@
 import express from 'express';
+import morgan from 'morgan';
 
 import ConfigHandler from './configHandler';
 
-import MiddlewareRoute from './routes/middleware';
+import Middleware from './services/middleware';
+
 import Root from './routes/root';
 import Robots from './routes/robots';
 import PlayRoute from './routes/play';
 import Error404Route from './routes/error404';
+
+import log from "./services/logger";
 
 import { ICredentialsFile } from './interfaces';
 
@@ -35,9 +39,10 @@ export default class Server {
     {
         if (!this.app) {
             this.app = express();
+            this.app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
             this.RegisterRoutes();
             this.server = this.app.listen(this.credentials.port, () => {
-                console.log(`🌍 What I Am Playing Web Server running on port ${this.credentials.port} !`);
+                log(`🌍 What I Am Playing Web Server running on port ${this.credentials.port} !`);
             });
         } else {
             throw new Error("Server is already running!");
@@ -51,7 +56,7 @@ export default class Server {
     Stop(): void
     {
         if (this.app) {
-            console.log(`Stopping server...`);
+            log(`Stopping server...`);
             this.server.close();
             this.app = undefined;
             clearInterval(this.updateInterval);
@@ -76,6 +81,7 @@ export default class Server {
                 this.HandleUpdateCredentials()
             }, 1000 * 60);
         }
+        return;
     }
 
     /**
@@ -85,10 +91,21 @@ export default class Server {
      */
     private RegisterRoutes(): void
     {
-        this.app.all('*', (req: any, res: any, next: any) => MiddlewareRoute(req, res, next));
-        this.app.get('/', (req: any, res: any) => Root(req, res));
-        this.app.get('/robots.txt', (req: any, res: any) => Robots(req, res));
+        /**
+         * Let's register the middleware first...
+         */
+        this.app.all('*', Middleware);
+
+        /**
+         * Now we register all paths
+         */
+        this.app.get('/', Root);
+        this.app.get('/robots.txt', Robots);
         this.app.get('/play', (req: any, res: any) => PlayRoute(req, res, this.credentials));
-        this.app.all('*', (_: any, res: any) => Error404Route(_, res));
+
+        /**
+         * We finally register a 404 handler
+         */
+        this.app.all('*', Error404Route);
     }
 }

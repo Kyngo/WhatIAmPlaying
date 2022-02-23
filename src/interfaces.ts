@@ -59,5 +59,6 @@ interface IQueryParams {
 export {
     ICredentialsFile,
     IJSONReply,
+    IJSONSong,
     IQueryParams
 };

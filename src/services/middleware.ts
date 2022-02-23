@@ -12,5 +12,4 @@ export default function (req: any, res: any, next: any): void
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('X-Powered-By', 'WhatIAmPlaying');
     next();
-    console.log(req.method, req.url, req.ip);
 }

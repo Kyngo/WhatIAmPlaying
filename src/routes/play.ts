@@ -3,7 +3,9 @@ import * as fs from 'fs';
 
 import Requester from '../services/request';
 
-import { ICredentialsFile, IJSONReply } from '../interfaces';
+import log from '../services/logger';
+
+import {ICredentialsFile, IJSONReply, IJSONSong} from '../interfaces';
 
 /**
  * Play method - this will query the Spotify API and parse its result.
@@ -25,7 +27,7 @@ export default async function (req: any, res: any, credentials: ICredentialsFile
     let html = '';
     let jsonReply: IJSONReply = { status: 'pending' };
     if (currentlyPlayingReq.status === 200) {
-        const song = {
+        const song: IJSONSong = {
             name: currentlyPlaying.item.name,
             artist: currentlyPlaying.currently_playing_type === 'track' ? currentlyPlaying.item.artists[0].name : currentlyPlaying.item.show.publisher,
             album: currentlyPlaying.currently_playing_type === 'track' ? currentlyPlaying.item.album.name : currentlyPlaying.item.show.name,
@@ -74,7 +76,7 @@ export default async function (req: any, res: any, credentials: ICredentialsFile
             res.send(image);
         }).catch(err => {
             res.status(500).send('Something went wrong when parsing the results...');
-            console.error(err);
+            log(err);
         });
     }
 }

@@ -4,6 +4,8 @@ import Requester from './services/request';
 
 import { ICredentialsFile, IQueryParams } from './interfaces';
 
+import log from './services/logger';
+
 const configFilePath = `${process.cwd()}/credentials.json`;
 
 export default {
@@ -87,20 +89,20 @@ export default {
                 credentials.refreshToken = res.data.refresh_token;
             }
             fs.writeFileSync(configFilePath, JSON.stringify(credentials, null, 4));
-            console.log('Updated credentials');
+            log('Updated credentials');
             return credentials;
         } catch (err: any) {
             const errorLogFilePath = `${__dirname}/messages.log`;
             if (!fs.existsSync(errorLogFilePath)) {
                 fs.writeFileSync(errorLogFilePath, '');
             }
-            console.error(`Something went wrong when updating the credentials. Please check the logs file located at ${errorLogFilePath} for more details.`);
+            log(`Something went wrong when updating the credentials. Please check the logs file located at ${errorLogFilePath} for more details.`);
             fs.appendFileSync(errorLogFilePath, '== NEW ERROR ==\n');
             fs.appendFileSync(errorLogFilePath, JSON.stringify(err) + '\n');
             if (err.response) {
                 fs.appendFileSync(errorLogFilePath, JSON.stringify(err.response.data) + '\n');
             }
-            else console.log(err);
+            else log(err);
             return credentials;
         }
     }
