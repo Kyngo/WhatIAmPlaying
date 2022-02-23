@@ -2,3 +2,4 @@ credentials.json
 node_modules/
 messages.log
 dist/
+.idea/

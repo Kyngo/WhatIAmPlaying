@@ -6,7 +6,7 @@ axios.interceptors.response.use((response) => {
     if (error.response && error.response.data) {
         return Promise.resolve(error.response);
     }
-    return Promise.resolve({data: 'unknown error'});
+    return Promise.resolve({status: 0, data: 'unknown error'});
 });
 
 export default axios;

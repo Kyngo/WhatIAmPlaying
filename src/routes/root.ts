@@ -7,5 +7,5 @@
  */
 export default function (req: any, res: any): void
 {
-    res.status(200).json({status: 'ok', name: 'WhatIAmPlaying', routes: ['/play']})
+    res.status(200).json({status: 'ok', name: 'WhatIAmPlaying', routes: ['/', '/play', '/robots.txt']})
 }

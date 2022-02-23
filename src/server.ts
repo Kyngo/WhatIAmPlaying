@@ -10,17 +10,27 @@ import Error404Route from './routes/error404';
 
 import { ICredentialsFile } from './interfaces';
 
+/**
+ * Server class - handles the Express web server
+ */
 export default class Server {
     app: any;
     credentials: ICredentialsFile;
     server: any;
     updateInterval: any;
 
+    /**
+     * When creating the object, we will load the credentials and update them
+     */
     constructor() {
         this.credentials = ConfigHandler.Load();
-        this.HandleUpdateCredentials();
+        this.HandleUpdateCredentials().then(() => {});
     }
 
+    /**
+     * This method launches the web server and registers all of its routes
+     * @constructor
+     */
     Start(): void
     {
         if (!this.app) {
@@ -34,6 +44,10 @@ export default class Server {
         }
     }
 
+    /**
+     * A way to gracefully stop the web server and garbage collect
+     * @constructor
+     */
     Stop(): void
     {
         if (this.app) {
@@ -46,6 +60,11 @@ export default class Server {
         }
     }
 
+    /**
+     * Updates the credentials used to connect to the Spotify API
+     * @constructor
+     * @private
+     */
     private async HandleUpdateCredentials(): Promise<void>
     {
         const newCredentials: ICredentialsFile = await ConfigHandler.UpdateCredentials();
@@ -59,6 +78,11 @@ export default class Server {
         }
     }
 
+    /**
+     * Registers all the routes in the Express server
+     * @constructor
+     * @private
+     */
     private RegisterRoutes(): void
     {
         this.app.all('*', (req: any, res: any, next: any) => MiddlewareRoute(req, res, next));
