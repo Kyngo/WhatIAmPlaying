@@ -34,7 +34,7 @@ You can change the default port by overriding the `PORT` environment variable.
 
 ## Example widget
 
-[![Spotify](http://prometheus.kyngo.net:38150/play?v=1)](https://open.spotify.com/user/arno-kun)
+[![Spotify](https://prometheus.kyngo.net/play?v=1)](https://open.spotify.com/user/arno-kun)
 
 The widget itself will reply using HTTP. You can use an Apache or Nginx proxy to add an SSL layer if you wish to. You can also use other load balancers to accomplish such thing.
 
